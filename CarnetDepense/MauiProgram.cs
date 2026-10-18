@@ -17,8 +17,8 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        // Phase A : Repository local JSON
-        builder.Services.AddSingleton<IDepenseRepository, JsonDepenseRepository>();
+        // Phase C : Persistance locale avec SQLite
+        builder.Services.AddSingleton<IDepenseRepository, SqliteDepenseRepository>();
 
         // Phase B : API Service avec faux serveur hors ligne
         builder.Services.AddSingleton(new HttpClient(new FakeApiHandler()));
