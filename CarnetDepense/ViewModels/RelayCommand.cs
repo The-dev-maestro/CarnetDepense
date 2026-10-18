@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using Microsoft.Maui.ApplicationModel;
 
 namespace CarnetDepenses.ViewModels;
 
@@ -17,7 +18,13 @@ public class RelayCommand : ICommand
 
     public void Execute(object? parameter) => _execute();
 
-    public void Rafraichir() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+    public void Rafraichir()
+    {
+        if (MainThread.IsMainThread)
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        else
+            MainThread.BeginInvokeOnMainThread(() => CanExecuteChanged?.Invoke(this, EventArgs.Empty));
+    }
 
     public event EventHandler? CanExecuteChanged;
 }

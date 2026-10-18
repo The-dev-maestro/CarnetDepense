@@ -5,7 +5,7 @@
              x:Class="CarnetDepense.MainPage"
              Title="Carnet de Dépenses">
 
-    <Grid RowDefinitions="Auto, Auto, *"
+    <Grid RowDefinitions="Auto, Auto, *, Auto"
           Padding="16" RowSpacing="10">
         <VerticalStackLayout Spacing="8">
             <Entry Placeholder="Libellé" Text="{Binding Libelle}" />
@@ -31,6 +31,15 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        <VerticalStackLayout Grid.Row="3" Spacing="6">
+            <Button Text="Convertir le total en EUR"
+                    Command="{Binding ConvertirCommand}" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}" />
+            <Label Text="{Binding TotalConverti}" FontSize="16" FontAttributes="Bold" />
+            <Label Text="{Binding Message}" TextColor="Red" />
+        </VerticalStackLayout>
     </Grid>
 
 </ContentPage>
