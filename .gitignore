@@ -1,0 +1,28 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio / VS Code
+.vs/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Rider / JetBrains
+.idea/
+*.sln.iml
+
+# Crashlytics / Mobile builds
+*.apk
+*.aab
