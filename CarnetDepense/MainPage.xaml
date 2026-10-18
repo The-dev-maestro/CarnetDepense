@@ -3,43 +3,218 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:CarnetDepenses.ViewModels"
              x:Class="CarnetDepense.MainPage"
-             Title="Carnet de Dépenses">
+             Title="Carnet de Dépenses"
+             BackgroundColor="#F4F6F9">
 
-    <Grid RowDefinitions="Auto, Auto, *, Auto"
-          Padding="16" RowSpacing="10">
-        <VerticalStackLayout Spacing="8">
-            <Entry Placeholder="Libellé" Text="{Binding Libelle}" />
-            <Entry Placeholder="Montant" Keyboard="Numeric"
-                   Text="{Binding MontantTexte}" />
-            <Button Text="Ajouter" Command="{Binding AjouterCommand}" />
-        </VerticalStackLayout>
+    <Grid RowDefinitions="Auto, Auto, Auto, *, Auto"
+          Padding="16" RowSpacing="12">
 
-        <Label Grid.Row="1" FontSize="18" FontAttributes="Bold"
-               Text="{Binding Total, StringFormat='Total : {0:N0} FCFA'}" />
+        <!-- 1. En-tête / Carte Résumé Statistique -->
+        <Border Grid.Row="0"
+                Stroke="#E2E8F0"
+                StrokeThickness="1"
+                Background="#512BD4"
+                StrokeShape="RoundRectangle 16"
+                Padding="16">
+            <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="TOTAL DES DÉPENSES"
+                           FontSize="11"
+                           FontAttributes="Bold"
+                           TextColor="#D1C4E9"
+                           CharacterSpacing="1" />
+                    <Label Text="{Binding Total, StringFormat='{0:N0} FCFA'}"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="White" />
+                    <Label Text="{Binding TotalConverti}"
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           TextColor="#FFD54F"
+                           IsVisible="{Binding TotalConverti, Converter={x:Null}}" />
+                </VerticalStackLayout>
 
-        <CollectionView Grid.Row="2" ItemsSource="{Binding Depenses}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="8">
-                        <Label Text="{Binding Libelle}" VerticalOptions="Center" />
-                        <Label Grid.Column="1" Text="{Binding Montant, StringFormat='{0:N0} FCFA'}"
-                               VerticalOptions="Center" />
-                        <Button Grid.Column="2" Text="X"
-                                CommandParameter="{Binding .}"
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DepensesViewModel}}, Path=SupprimerCommand}" />
-                    </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="End" VerticalOptions="Start" Spacing="4">
+                    <Border BackgroundColor="#4527A0"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="10,4">
+                        <Label Text="{Binding NombreDepensesTexte}"
+                               FontSize="12"
+                               FontAttributes="Bold"
+                               TextColor="White" />
+                    </Border>
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
 
-        <VerticalStackLayout Grid.Row="3" Spacing="6">
-            <Button Text="Convertir le total en EUR"
-                    Command="{Binding ConvertirCommand}" />
-            <ActivityIndicator IsRunning="{Binding IsBusy}"
-                               IsVisible="{Binding IsBusy}" />
-            <Label Text="{Binding TotalConverti}" FontSize="16" FontAttributes="Bold" />
-            <Label Text="{Binding Message}" TextColor="Red" />
-        </VerticalStackLayout>
+        <!-- 2. Barre de Contrôle du Réseau (Simulation Panne) -->
+        <Border Grid.Row="1"
+                Stroke="#E2E8F0"
+                StrokeThickness="1"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 12"
+                Padding="12,8">
+            <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Mode Simulation Réseau"
+                           FontSize="11"
+                           TextColor="#718096"
+                           FontAttributes="Bold" />
+                    <Label Text="{Binding StatutReseauTexte}"
+                           FontSize="13"
+                           FontAttributes="Bold"
+                           TextColor="{Binding SimulerPanne, Converter={x:Null}}" />
+                </VerticalStackLayout>
+                <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                    <Label Text="Panne :" FontSize="12" VerticalOptions="Center" TextColor="#4A5568" />
+                    <Switch IsToggled="{Binding SimulerPanne}" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Grid>
+        </Border>
+
+        <!-- 3. Formulaire d'ajout de dépense -->
+        <Border Grid.Row="2"
+                Stroke="#E2E8F0"
+                StrokeThickness="1"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 14"
+                Padding="14">
+            <VerticalStackLayout Spacing="10">
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="8">
+                    <Entry Placeholder="Libellé de la dépense"
+                           Text="{Binding Libelle}"
+                           FontSize="14"
+                           ClearButtonVisibility="WhileEditing" />
+                    <Entry Grid.Column="1"
+                           Placeholder="Montant (FCFA)"
+                           Keyboard="Numeric"
+                           Text="{Binding MontantTexte}"
+                           FontSize="14"
+                           ClearButtonVisibility="WhileEditing" />
+                </Grid>
+
+                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                    <Picker Title="Catégorie"
+                            ItemsSource="{Binding Categories}"
+                            SelectedItem="{Binding CategorieSelectionnee}"
+                            FontSize="13" />
+                    <Button Grid.Column="1"
+                            Text="Ajouter"
+                            Command="{Binding AjouterCommand}"
+                            BackgroundColor="#512BD4"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            CornerRadius="8"
+                            Padding="20,0" />
+                </Grid>
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- 4. Liste des dépenses -->
+        <Grid Grid.Row="3" RowDefinitions="Auto, *">
+            <Grid ColumnDefinitions="*, Auto" Margin="4,4,4,8">
+                <Label Text="Historique des dépenses"
+                       FontSize="15"
+                       FontAttributes="Bold"
+                       TextColor="#2D3748"
+                       VerticalOptions="Center" />
+                <Button Grid.Column="1"
+                        Text="Tout effacer"
+                        Command="{Binding ViderToutCommand}"
+                        FontSize="11"
+                        TextColor="#E53E3E"
+                        BackgroundColor="Transparent"
+                        Padding="4,0" />
+            </Grid>
+
+            <CollectionView Grid.Row="1"
+                            ItemsSource="{Binding Depenses}"
+                            EmptyView="Aucune dépense enregistrée. Ajoutez-en une ci-dessus !">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Margin="0,4"
+                                Stroke="#EDF2F7"
+                                StrokeThickness="1"
+                                BackgroundColor="White"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="12,10">
+                            <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="10" VerticalOptions="Center">
+                                <VerticalStackLayout Spacing="2">
+                                    <Label Text="{Binding Libelle}"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="#1A202C" />
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Border BackgroundColor="#EDF2F7"
+                                                StrokeShape="RoundRectangle 4"
+                                                Padding="6,2">
+                                            <Label Text="{Binding Categorie}"
+                                                   FontSize="10"
+                                                   TextColor="#4A5568"
+                                                   FontAttributes="Bold" />
+                                        </Border>
+                                        <Label Text="{Binding Date, StringFormat='{0:dd/MM/yyyy}'}"
+                                               FontSize="11"
+                                               TextColor="#A0AEC0"
+                                               VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+
+                                <Label Grid.Column="1"
+                                       Text="{Binding Montant, StringFormat='{0:N0} FCFA'}"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="#2B6CB0"
+                                       VerticalOptions="Center" />
+
+                                <Button Grid.Column="2"
+                                        Text="✕"
+                                        FontSize="13"
+                                        FontAttributes="Bold"
+                                        TextColor="#E53E3E"
+                                        BackgroundColor="#FFF5F5"
+                                        CornerRadius="16"
+                                        WidthRequest="32"
+                                        HeightRequest="32"
+                                        Padding="0"
+                                        CommandParameter="{Binding .}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DepensesViewModel}}, Path=SupprimerCommand}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+
+        <!-- 5. Section de Conversion API / Hors-Ligne -->
+        <Border Grid.Row="4"
+                Stroke="#CBD5E0"
+                StrokeThickness="1"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 14"
+                Padding="12">
+            <VerticalStackLayout Spacing="6">
+                <Button Text="Convertir le total en EUR"
+                        Command="{Binding ConvertirCommand}"
+                        BackgroundColor="#2B6CB0"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        CornerRadius="8"
+                        HeightRequest="44" />
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="#2B6CB0"
+                                   HeightRequest="24" />
+
+                <Label Text="{Binding Message}"
+                       FontSize="12"
+                       HorizontalOptions="Center"
+                       TextColor="#4A5568"
+                       IsVisible="{Binding Message, Converter={x:Null}}" />
+            </VerticalStackLayout>
+        </Border>
+
     </Grid>
 
 </ContentPage>
